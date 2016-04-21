@@ -76,17 +76,15 @@ def shopping_cart():
 
     # holds all melon data to return
     melons_in_cart = {}
-
-    # total_melon is the total for each melon type
-    total_melon = 0
     # total_order_cost is the total for the entire order itself
     total_order_cost = 0
     # get a list of melon ids
     for id in session['cart']:
         melon_data_by_id = melons.get_by_id(id)
         if id in melons_in_cart:
-            qty = melons_in_cart[id]['qty'] + 1
             melons_in_cart[id]['qty'] += 1
+            # go get the total_melon value from the key, and then that's equal to
+            # price times quantity of what we have in the melons_in_cart[id]  dictionary
             melons_in_cart[id]['total_melon'] = melons_in_cart[id]['price'] * melons_in_cart[id]['qty']
         else:
             # move this line down, dawg!
@@ -101,7 +99,7 @@ def shopping_cart():
                                     'qty': 1,
                                     'total_melon': melon_data_by_id.price
                                  }
-        total_order_cost = total_order_cost + (melons_in_cart[id]['price'] * melons_in_cart[id]['qty'])
+        total_order_cost = total_order_cost + melons_in_cart[id]['price']
 
     return render_template("cart.html",
                             melons_in_cart=melons_in_cart,
@@ -124,10 +122,6 @@ def add_to_cart(id):
 
         # append the id to the cart
         session['cart'].append(id)
-
-
-    # for id in session['cart']:
-    print "AAAAAAAAAAAAAAAAAAAAAA", session
 
     return redirect("/cart")
 
