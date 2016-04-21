@@ -59,25 +59,53 @@ def show_melon(melon_id):
 @app.route("/cart")
 def shopping_cart():
     """Display content of shopping cart."""
-    melon_data = {}
 
-    for item in session['cart']:
-        melon_data_by_id = melons.get_by_id(item)
-        # don't forget to add a k,v in the melon_data_by_id for quantity and updated price
-        
-        # append this dictionary being returned and 
-        # stored in melon_data_by_id to melon_data
-        melon_data['common_name_here'] = melon_data_by_id
-    # The logic here will be something like:
-    #
-    # - get the list-of-ids-of-melons from the session cart
-    # - loop over this list:
-    #   - keep track of information about melon types in the cart
-    #   - keep track of the total amt ordered for a melon-type
-    #   - keep track of the total amt of the entire order
-    # - hand to the template the total order cost and the list of melon types
+    # have a for loop that loops through the entire list of ids in session['cart']
+    # do something like this  melon_data_by_id = melons.get_by_id(item)
+    # then put it into the empty dictionary called melon_data, and assemble the dictionary
+    # to hold a bunch of dictionaries
 
-    return render_template("cart.html")
+    # id,
+    # melon_type,
+    # common_name,
+    # price,
+    # img_url,
+    # color,
+    # seedless
+
+
+    # holds all melon data to return
+    melons_in_cart = {}
+
+    # total_melon is the total for each melon type
+    total_melon = 0
+    # total_order_cost is the total for the entire order itself
+    total_order_cost = 0
+    # get a list of melon ids
+    for id in session['cart']:
+        melon_data_by_id = melons.get_by_id(id)
+        if id in melons_in_cart:
+            qty = melons_in_cart[id]['qty'] + 1
+            melons_in_cart[id]['qty'] += 1
+            melons_in_cart[id]['total_melon'] = melons_in_cart[id]['price'] * melons_in_cart[id]['qty']
+        else:
+            # move this line down, dawg!
+            # total_melon = melons_in_cart[id].price
+            melons_in_cart[id] = { 
+                                    'melon_type': melon_data_by_id.melon_type,
+                                    'common_name': melon_data_by_id.common_name,
+                                    'price': melon_data_by_id.price,
+                                    'img_url': melon_data_by_id.image_url,
+                                    'color': melon_data_by_id.color,
+                                    'seedless': melon_data_by_id.seedless,
+                                    'qty': 1,
+                                    'total_melon': melon_data_by_id.price
+                                 }
+        total_order_cost = total_order_cost + (melons_in_cart[id]['price'] * melons_in_cart[id]['qty'])
+
+    return render_template("cart.html",
+                            melons_in_cart=melons_in_cart,
+                            total_order_cost=total_order_cost)
 
 
 @app.route("/add_to_cart/<int:id>")
@@ -86,11 +114,22 @@ def add_to_cart(id):
 
     When a melon is added to the cart, redirect browser to the shopping cart
     page and display a confirmation message: 'Successfully added to cart'.
-    """  
-    session['cart'] = id
+    """
 
-    return render_template("cart.html",
-                    session['cart'])
+    if session['cart']:
+        session['cart'].append(id)
+    else:
+        # create an empty list inside of the cart dictionary
+        session['cart'] = []
+
+        # append the id to the cart
+        session['cart'].append(id)
+
+
+    # for id in session['cart']:
+    print "AAAAAAAAAAAAAAAAAAAAAA", session
+
+    return redirect("/cart")
 
 
 @app.route("/login", methods=["GET"])
