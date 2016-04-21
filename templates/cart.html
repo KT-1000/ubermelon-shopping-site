@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Melon Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for melon in melons_in_cart %}
+            <tr>
+                <td>{{ melons_in_cart[melon]["common_name"] }}</td>
+                <td>{{ melons_in_cart[melon]["qty"] }}</td>
+                <td>{{ melons_in_cart[melon]["price"] }}</td>
+                <td>{{ melons_in_cart[melon]["total_melon"] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>{{ total_order_cost }}</h3>
+
+    <a href="/checkout" class="btn btn-large btn-primary">Check Out</a>
+
+{% endblock %}
